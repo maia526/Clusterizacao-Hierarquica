@@ -7,13 +7,18 @@ public class Distancia implements Comparable<Distancia>{
 
 	public Distancia(Cluster c1, Cluster c2) {
 		super();
-		this.distancia = calcularDistancia();
 		this.c1 = c1;
 		this.c2 = c2;
+		this.distancia = calcularDistancia();
 	}
 	
 	public double calcularDistancia() {
-		return Math.sqrt((c1.getCentroide().x-c2.getCentroide().x)+(c1.getCentroide().y-c2.getCentroide().y));
+		// sqrt (x1 - x2) + (y1 - y2)
+		double x = Math.pow(c1.getCentroide().x - c2.getCentroide().x, 2);
+		double y = Math.pow(c1.getCentroide().y - c2.getCentroide().y ,2);
+		double soma = x + y;
+		double raiz = Math.sqrt(soma);
+		return raiz;
 	}
 
 	public double getDistancia() {
