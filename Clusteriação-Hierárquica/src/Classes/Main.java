@@ -3,62 +3,62 @@ package Classes;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
-	public static void main(String[] args){
-		List<Ponto> listaPonto = new ArrayList<>();
-		for (int i = 0; i < 500; i++) {
-			Ponto p = new Ponto();
-			listaPonto.add(p);
+	public static void main(String[] args) throws IOException {
+		//10, 20, 30, 40, 50, 100, 200, 500, 1.000, 5.000, 10.000, 20.000, 50.000 e 100.000
+		int qtdEntradas =320;
+		List tempos = new ArrayList<>();
+		int iteracoes = 0;
+		while(iteracoes != 10){
+			List<Ponto> listaPonto = new ArrayList<>();
+			for (int i = 0; i < qtdEntradas; i++) {
+				Ponto p = new Ponto();
+				listaPonto.add(p);
+			}
+
+			List<Cluster> listaCluster = new ArrayList<>();
+			for (Ponto p : listaPonto) {
+				Cluster c = new Cluster(p);
+				listaCluster.add(c);
+			}
+
+
+			long startTime = System.currentTimeMillis();
+
+			List<Distancia> listaDistancia;
+			while (listaCluster.size() > 1) {
+				listaDistancia = calcularDistancias(listaCluster);
+				Distancia menor = acharMenorDistancia(listaDistancia);
+				Cluster novoCluster = new Cluster(menor.getC1().getPontos(), menor.getC2().getPontos());
+				removerClusteresDaLista(menor, listaCluster);
+				listaCluster.add(novoCluster);
+			}
+			long endTime = System.currentTimeMillis();
+			tempos.add(endTime-startTime);
+			FileWriter fileWriter = new FileWriter("registro.txt", true);
+			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+			bufferedWriter.write("Entradas: " + qtdEntradas + "\nTempo: " + (endTime - startTime) + " milissegundos\n");
+			bufferedWriter.close();
+
+			iteracoes++;
 		}
-
-
-		List<Cluster> listaCluster = new ArrayList<>();
-		for (Ponto p : listaPonto) {
-			Cluster c = new Cluster(p);
-			listaCluster.add(c);
-		}
-
-
-		long startTime = System.currentTimeMillis();
-
-		List<Distancia> listaDistancia = new ArrayList<>();
-		while (listaCluster.size() > 1) {
-
-			//calcula a distância entre todos os clusters
-			listaDistancia = calcularDistancias(listaCluster);
-			//acha a menor
-			Distancia menor = acharMenorDistancia(listaDistancia);
-			//cria o centroide do novo cluster
-			Ponto novoCentroide = criarCentroide(menor.getC1(), menor.getC2());
-			//gera o novo clusrter
-			Cluster novoCluster = new Cluster(novoCentroide);
-			//remove os dois clusteres juntados da lista de clusters
-			removerClusteresDaLista(menor, listaCluster);
-			//adiciona o cluster novo na lista de cluster
-			listaCluster.add(novoCluster);
-
-
-			escreverListaClusterNoTxt(listaCluster);
-		}
-		long endTime = System.currentTimeMillis();
-
-		System.out.println("Tempo: " + (endTime - startTime) + " milissegundos");
+		FileWriter fileWriter = new FileWriter("registro.txt", true);
+		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+		bufferedWriter.write("\nMédia: " + fazMedia(tempos) + "\n\n");
+		bufferedWriter.close();
 	}
 
-	public static void escreverListaClusterNoTxt(List<Cluster> listaCluster){
-		for (Cluster c : listaCluster) {
-			System.out.println(c);
+	public static long fazMedia(List<Long> tempos){
+		long soma = 0;
+		for (long tempo : tempos){
+			soma+= tempo;
 		}
-		System.out.println("");
-	}
-	
-	public static void imprimirNovoCluster(Distancia distancia) {
-		System.out.println("Novo cluster: " + distancia.getC1() + "/" + distancia.getC2());
+		return soma / 10;
+
 	}
 	
 	public static void removerClusteresDaLista(Distancia distancia, List<Cluster> listaCluster){
@@ -69,14 +69,6 @@ public class Main {
 			}
 		}
 		listaCluster.removeAll(toRemove);
-	}
-	
-	public static Ponto criarCentroide(Cluster c1, Cluster c2) {
-		double x = (c1.getCentroide().x + c2.getCentroide().x)/2;
-		double y = (c1.getCentroide().y + c2.getCentroide().y)/2;
-		
-		Ponto centroide = new Ponto(x, y);
-		return centroide;
 	}
 	
 	public static Distancia acharMenorDistancia(List<Distancia> listaDistancia) {
@@ -92,7 +84,7 @@ public class Main {
 		List<Distancia> listaDistancia = new ArrayList<>();
 		for (int i = 0; i < listaCluster.size()-1; i++) {
 			for (int j = i + 1; j < listaCluster.size(); j++) {
-				Distancia d = new Distancia(listaCluster.get(i), listaCluster.get(j));//todo: aqui ele tá passando o cluster como null
+				Distancia d = new Distancia(listaCluster.get(i), listaCluster.get(j));
 				listaDistancia.add(d);
 			}
 		}
