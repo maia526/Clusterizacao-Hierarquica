@@ -21,13 +21,17 @@ public class Main {
 		
 		List<Distancia> listaDistancia = new ArrayList<>();
 		while (listaCluster.size()+1 > 1) {
+			//calcula a distância entre todos os clusters
 			listaDistancia = calcularDistancias(listaCluster);
+			//acha a menor
 			Distancia menor = acharMenorDistancia(listaDistancia);
-			
+			//cria o centroide do novo cluster
 			Ponto novoCentroide = criarCentroide(menor.getC1(), menor.getC2());
+			//gera o novo clusrter
 			Cluster novoCluster = new Cluster(novoCentroide);
-			
+			//remove os dois clusteres juntados da lista de clusters
 			removerClusteresDaLista(menor, listaCluster);
+			//adiciona o cluster novo na lista de cluster
 			listaCluster.add(novoCluster);
 		}
 
@@ -66,7 +70,7 @@ public class Main {
 		List<Distancia> listaDistancia = new ArrayList<>();
 		for (int i = 0; i < listaCluster.size()-1; i++) {
 			for (int j = i + 1; j < listaCluster.size()-1; i++) {
-				Distancia d = new Distancia(listaCluster.get(i), listaCluster.get(j));//aqui ele tá passando o cluster como null
+				Distancia d = new Distancia(listaCluster.get(i), listaCluster.get(j));//todo: aqui ele tá passando o cluster como null
 				listaDistancia.add(d);
 			}
 		}
