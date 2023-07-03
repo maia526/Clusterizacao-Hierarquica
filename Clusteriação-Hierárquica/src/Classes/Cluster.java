@@ -1,70 +1,55 @@
 package Classes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Cluster implements Comparable<Cluster>{
-	public List<Ponto> pontos;
-	private Ponto centroide;
 
-	public Cluster(Ponto centroide) {
-		super();
-		this.pontos = new ArrayList<>();
-		this.centroide = centroide;
+	Ponto coord;
+	//private Arvbin<Cluster> raiz;
+	private Ponto acumulado;
+	private int qtdPontos;
+
+	public Cluster(Ponto coord) {
+		this.coord = coord;
+		this.acumulado = new Ponto(0,0);
+		this.qtdPontos = 0;
+
+		//this.raiz = new Arvbin<>(this);
 	}
 
-	public Cluster (List<Ponto> pontos1, List<Ponto> pontos2){
-		super();
-		this.pontos = inicializarListaDePontos(pontos1, pontos2);
-		this.centroide = gerarCentroide();
-		this.centroide = gerarCentroide();
+	public Cluster(Distancia menor){
+
+		Cluster c1 = menor.getC1();
+		Cluster c2 = menor.getC2();
+
+		this.acumulado = Ponto.soma(c1.acumulado, c2.acumulado, c1.coord, c2.coord);
+
+		this.qtdPontos = menor.getC1().qtdPontos + menor.getC2().qtdPontos + 2;
+		this.coord = new Ponto(acumulado.getX() / qtdPontos, acumulado.getY() / qtdPontos);
+
+		//this.raiz = new Arvbin<>(this, menor.getC1().getRaiz(), menor.getC2().getRaiz());
 	}
 
-	public Ponto gerarCentroide(){
-		double x = 0;
-		double y = 0;
-		for (Ponto p : this.pontos){
-			x += p.x;
-			y += p.y;
-		}
-		x = x / pontos.size();
-		y = y / pontos.size();
+	/*public Arvbin<Cluster> getRaiz() {
+		return raiz;
+	}*/
 
-		return new Ponto(x, y);
-	}
-	public List<Ponto> inicializarListaDePontos(List<Ponto> pontos1, List<Ponto> pontos2){
-		List<Ponto> listaPontos = new ArrayList<>();
-		for (Ponto p : pontos1){
-			listaPontos.add(p);
-		}
-		for (Ponto p : pontos2){
-			listaPontos.add(p);
-		}
 
-		return listaPontos;
+	public Ponto getCoord() {
+		return coord;
 	}
 
-	public Ponto getCentroide() {
-		return centroide;
+	public Ponto getAcumulado() {
+		return acumulado;
 	}
 
-	public void adicionarPonto(Ponto ponto){
-		pontos.add(ponto);
-	}
-
-	public List<Ponto> getPontos() {
-		return pontos;
-	}
-
-	public void setCentroide(Ponto centroide) {
-		this.centroide = centroide;
+	public int getQtdPontos() {
+		return qtdPontos;
 	}
 
 	@Override
 	public int compareTo(Cluster o) {
-		if (this.centroide.compareTo(o.getCentroide()) == 0)
+		if (this.coord.getX() == o.coord.getX() && this.coord.getY() == o.coord.getY())
 			return 0;
-		if (this.centroide.compareTo(o.getCentroide()) < 0)
+		if (this.coord.getX() < o.coord.getX() && this.coord.getY() < o.coord.getY())
 			return -1;
 		else
 			return 1;
@@ -72,10 +57,7 @@ public class Cluster implements Comparable<Cluster>{
 
 	@Override
 	public String toString() {
-		return "X: " + centroide.x + " Y: " + centroide.y;
+		return "X: " + this.coord.getX() + " Y: " + this.coord.getY();
 	}
-	
-	
-	
-	
+
 }

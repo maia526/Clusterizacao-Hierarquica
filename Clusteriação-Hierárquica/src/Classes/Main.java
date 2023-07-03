@@ -4,17 +4,37 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Main {
 
 	public static void main(String[] args) throws IOException {
 		//10, 20, 30, 40, 50, 100, 200, 500, 1.000, 5.000, 10.000, 20.000, 50.000 e 100.000
-		int qtdEntradas =320;
+		int qtdEntradas = 5000;
 		List tempos = new ArrayList<>();
 		int iteracoes = 0;
+
+		Cluster raiz = null;
+
 		while(iteracoes != 10){
 			List<Ponto> listaPonto = new ArrayList<>();
+
+			/*List<Ponto> listaPonto = new ArrayList<>(){{
+					add(new Ponto(4,10));
+					add(new Ponto(7,10));
+					add(new Ponto(4,8));
+					add(new Ponto(6,8));
+					add(new Ponto(3,4));
+					add(new Ponto(2,2));
+					add(new Ponto(5,2));
+					add(new Ponto(10,5));
+					add(new Ponto(12,6));
+					add(new Ponto(11,4));
+					add(new Ponto(9,3));
+					add(new Ponto(12,3));
+			}};*/
+
 			for (int i = 0; i < qtdEntradas; i++) {
 				Ponto p = new Ponto();
 				listaPonto.add(p);
@@ -32,8 +52,9 @@ public class Main {
 			List<Distancia> listaDistancia;
 			while (listaCluster.size() > 1) {
 				listaDistancia = calcularDistancias(listaCluster);
-				Distancia menor = acharMenorDistancia(listaDistancia);
-				Cluster novoCluster = new Cluster(menor.getC1().getPontos(), menor.getC2().getPontos());
+				Distancia menor = acharMenorDistancia(listaDistancia); //todo: pode ser encontrada durante a execução do calcularDistancia, não precisaria desse loop
+				Cluster novoCluster = new Cluster(menor);
+				//raiz = novoCluster;
 				removerClusteresDaLista(menor, listaCluster);
 				listaCluster.add(novoCluster);
 			}
@@ -50,6 +71,8 @@ public class Main {
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 		bufferedWriter.write("\nMédia: " + fazMedia(tempos) + "\n\n");
 		bufferedWriter.close();
+
+		//raiz.getRaiz().mostra();
 	}
 
 	public static long fazMedia(List<Long> tempos){
@@ -61,7 +84,7 @@ public class Main {
 
 	}
 	
-	public static void removerClusteresDaLista(Distancia distancia, List<Cluster> listaCluster){
+	public static void removerClusteresDaLista(Distancia distancia, List<Cluster> listaCluster){ //todo: não sei se teria problema utilizar aqui uma lista para retirar e não só utilizar dois remove(). Está gastando memória sem precisa, mas é pequena
 		List<Cluster> toRemove = new ArrayList<>();
 		for (Cluster c : listaCluster) {
 			if (c.equals(distancia.getC1()) || c.equals(distancia.getC2())) {
