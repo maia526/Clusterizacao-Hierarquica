@@ -2,17 +2,17 @@ package Classes;
 
 public class Cluster implements Comparable<Cluster>{
 
-	Ponto coord;
-	//private Arvbin<Cluster> raiz;
+	private Ponto coord;
+	private Arvbin<Cluster> raiz;
 	private Ponto acumulado;
 	private int qtdPontos;
 
 	public Cluster(Ponto coord) {
 		this.coord = coord;
-		this.acumulado = new Ponto(0,0);
-		this.qtdPontos = 0;
+		this.acumulado = new Ponto(coord.getX(), coord.getY());
+		this.qtdPontos = 1;
 
-		//this.raiz = new Arvbin<>(this);
+		this.raiz = new Arvbin<>(this);
 	}
 
 	public Cluster(Distancia menor){
@@ -20,17 +20,17 @@ public class Cluster implements Comparable<Cluster>{
 		Cluster c1 = menor.getC1();
 		Cluster c2 = menor.getC2();
 
-		this.acumulado = Ponto.soma(c1.acumulado, c2.acumulado, c1.coord, c2.coord);
+		this.acumulado = Ponto.soma(c1.acumulado, c2.acumulado);
 
-		this.qtdPontos = menor.getC1().qtdPontos + menor.getC2().qtdPontos + 2;
+		this.qtdPontos = c1.qtdPontos + c2.qtdPontos;
 		this.coord = new Ponto(acumulado.getX() / qtdPontos, acumulado.getY() / qtdPontos);
 
-		//this.raiz = new Arvbin<>(this, menor.getC1().getRaiz(), menor.getC2().getRaiz());
+		this.raiz = new Arvbin<>(this, c1.getRaiz(), c2.getRaiz());
 	}
 
-	/*public Arvbin<Cluster> getRaiz() {
+	public Arvbin<Cluster> getRaiz() {
 		return raiz;
-	}*/
+	}
 
 
 	public Ponto getCoord() {
