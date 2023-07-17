@@ -5,10 +5,12 @@ import java.util.Random;
 public class Ponto implements Comparable<Ponto>{
 	private double x;
 	private double y;
+
+	private static Random random = new Random();
 	
-	public Ponto() {
-		this.x = gerarNumeroAleatorio();
-		this.y = gerarNumeroAleatorio();
+	public Ponto(int limite) {
+		this.x = gerarNumeroAleatorio(limite);
+		this.y = gerarNumeroAleatorio(limite);
 	}
 	
 	public Ponto(double x, double y) {
@@ -16,10 +18,8 @@ public class Ponto implements Comparable<Ponto>{
 		this.y = y;
 	}
 	
-	public int gerarNumeroAleatorio() {
-		Random random = new Random();
-		
-		return random.nextInt(100);
+	public int gerarNumeroAleatorio(int limite) {
+		return random.nextInt(limite);
 	}
 
 	public double getX() {
@@ -38,8 +38,8 @@ public class Ponto implements Comparable<Ponto>{
 		this.y = y;
 	}
 
-	static public Ponto soma(Ponto p1, Ponto p2) {
-		return new Ponto(p1.x + p2.x, p1.y + p2.y);
+	public Ponto soma(Ponto p2) {
+		return new Ponto(this.x + p2.x, this.y + p2.y);
 	}
 
 	@Override
@@ -54,6 +54,5 @@ public class Ponto implements Comparable<Ponto>{
 	public String toString() {
 		return "Ponto [x=" + x + ", y=" + y + "]";
 	}
-	
 	
 }

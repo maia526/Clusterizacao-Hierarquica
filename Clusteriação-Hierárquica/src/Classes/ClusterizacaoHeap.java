@@ -7,82 +7,88 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClusterizacaoHeap {
-    //teste com 10, 20, 30, 40, 50, 100, 200, 500, 1.000, 5.000, 10.000, 20.000, 50.000 e 100.000
-    private final int qtdEntradas = 500;
-    private List tempos = new ArrayList<>();
-    private int iteracoes = 0;
-    private HeapBinariaMinima distancias;
 
-    private int tamHeap = (qtdEntradas*(qtdEntradas-1))/2; //todo: colocar isso depois no construtor
+    private final int iteracoesTotais;
+    private HeapBinariaMinima distancias;
+    private final int tamHeap;
     Cluster raiz;
 
-    public ClusterizacaoHeap() throws IOException {
+    public ClusterizacaoHeap(int qtdEntradas, int iteracoesTotais) throws IOException {
+        this.iteracoesTotais = iteracoesTotais;
+        this.tamHeap = (qtdEntradas*(qtdEntradas-1))/2;
 
-		while(iteracoes != 10){
-        List<Ponto> listaPonto = new ArrayList<>();
+        int iteracoes = 0;
+        List<Long> tempos = new ArrayList<>();
+        FileWriter fileWriter = new FileWriter("registro.txt", true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-            /*List<Ponto> listaPonto = new ArrayList<>(){{
-                add(new Ponto(4,10));
-                add(new Ponto(7,10));
-                add(new Ponto(4,8));
-                add(new Ponto(6,8));
-                add(new Ponto(3,4));
-                add(new Ponto(2,2));
-                add(new Ponto(5,2));
-                add(new Ponto(10,5));
-                add(new Ponto(12,6));
-                add(new Ponto(11,4));
-                add(new Ponto(9,3));
-                add(new Ponto(12,3));
-            }}; //Para teste*/
+        bufferedWriter.write("\n*** Algoritmo com Heap Mínima: ***\n\n");
 
-            // aqui poderia ser, pq a lista de pontos não vai ser necessária no final: todo: falar com a Maia sobre
+        while(iteracoes < iteracoesTotais){
             List<Cluster> listaCluster = new ArrayList<>();
 
-            for (int i = 0; i < qtdEntradas; i++) {
-                Ponto p = new Ponto(); // Cluster c = new Cluster(new Ponto());
-                listaPonto.add(p); // listaCluster.add(c);
-            }
+            /* //Teste
+                List<Ponto> listaPonto = new ArrayList<>(){{
+                    add(new Ponto(4,10));
+                    add(new Ponto(7,10));
+                    add(new Ponto(4,8));
+                    add(new Ponto(6,8));
+                    add(new Ponto(3,4));
+                    add(new Ponto(2,2));
+                    add(new Ponto(5,2));
+                    add(new Ponto(10,5));
+                    add(new Ponto(12,6));
+                    add(new Ponto(11,4));
+                    add(new Ponto(9,3));
+                    add(new Ponto(12,3));
+                }};
+                for (Ponto p : listaPonto) {
+                    Cluster c = new Cluster(p);
+                    listaCluster.add(c);
+                }
+            // */
 
-            for (Ponto p : listaPonto) {
-                Cluster c = new Cluster(p);
+            // /* se não for teste
+            for (int i = 0; i < qtdEntradas; i++) {
+                Cluster c = new Cluster(new Ponto(qtdEntradas));
                 listaCluster.add(c);
             }
+            // */
 
             long startTime = System.currentTimeMillis();
 
             distancias = calcularDistancias(listaCluster); // O(n²)
 
-            while (listaCluster.size() > 1) {
+            while (listaCluster.size() > 1) { //O(n²logn)
 
                 Distancia menor = distancias.get(1); //a menor distância está no índice 1: Complexidade O(1)
                 Cluster novoCluster = new Cluster(menor);
-                raiz = novoCluster;
+                // raiz = novoCluster; //Teste
 
                 listaCluster.remove(menor.getC1()); // O(n)
                 listaCluster.remove(menor.getC2()); // O(n)
+
                 distancias = removerDistanciasDaLista(menor); // O(n)??
                 calcularDistanciasCluster(listaCluster, novoCluster);
-                listaCluster.add(novoCluster);
+
+
+                // distancias = novasDistancias(menor, listaCluster, novoCluster); //O(nlogn)
+                listaCluster.add(novoCluster); // O(1)
             }
 
             long endTime = System.currentTimeMillis();
             tempos.add(endTime-startTime);
-            FileWriter fileWriter = new FileWriter("registro.txt", true);
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
             bufferedWriter.write("Entradas: " + qtdEntradas + "\nTempo: " + (endTime - startTime) + " milissegundos\n");
-            bufferedWriter.close();
 
             iteracoes++;
         }
 
 
-        FileWriter fileWriter = new FileWriter("registro.txt", true);
-        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.write("\nMédia: " + fazMedia(tempos) + "\n\n");
-        bufferedWriter.close();
 
-        //raiz.getRaiz().mostra();
+        // raiz.getRaiz().mostra(); //Teste
+        bufferedWriter.close();
     }
 
     public long fazMedia(List<Long> tempos){
@@ -90,23 +96,27 @@ public class ClusterizacaoHeap {
         for (long tempo : tempos){
             soma+= tempo;
         }
-        return soma / 10;
+        return soma / iteracoesTotais;
 
     }
 
-    public HeapBinariaMinima removerDistanciasDaLista(Distancia distancia){
-        Distancia[] permanecer = new Distancia[distancias.getN()];
+    public HeapBinariaMinima novasDistancias(Distancia distancia, List<Cluster> listaCluster, Cluster novo){
+        Distancia[] novasDistancias = new Distancia[distancias.getN()];
         Distancia[] vetor = distancias.getVetor();
         int contador = 0;
 
         for (int i = 1; i < distancias.getN(); i++) {
             if (vetor[i].getC1() != distancia.getC1() && vetor[i].getC1() != distancia.getC2() &&
                 vetor[i].getC2() != distancia.getC1() && vetor[i].getC2() != distancia.getC2()) {
-                permanecer[contador++] = vetor[i]; //O(logn)
+                novasDistancias[contador++] = vetor[i]; //O(logn)
             }
         }
 
-        return new HeapBinariaMinima(tamHeap, contador, permanecer);
+        for (Cluster c : listaCluster) {
+            novasDistancias[contador++] = new Distancia(c, novo);
+        }
+
+        return new HeapBinariaMinima(tamHeap, contador, novasDistancias);
 
     }
 
@@ -121,6 +131,22 @@ public class ClusterizacaoHeap {
         }
 
         return new HeapBinariaMinima(tamHeap, contador, vetor); // O(n)
+    }
+
+    public HeapBinariaMinima removerDistanciasDaLista(Distancia distancia){
+        Distancia[] permanecer = new Distancia[distancias.getN()];
+        Distancia[] vetor = distancias.getVetor();
+        int contador = 0;
+
+        for (int i = 1; i < distancias.getN(); i++) {
+            if (vetor[i].getC1() != distancia.getC1() && vetor[i].getC1() != distancia.getC2() &&
+                    vetor[i].getC2() != distancia.getC1() && vetor[i].getC2() != distancia.getC2()) {
+                permanecer[contador++] = vetor[i]; //O(logn)
+            }
+        }
+
+        return new HeapBinariaMinima(tamHeap, contador, permanecer);
+
     }
 
     public void calcularDistanciasCluster(List<Cluster> listaCluster, Cluster novo) {
