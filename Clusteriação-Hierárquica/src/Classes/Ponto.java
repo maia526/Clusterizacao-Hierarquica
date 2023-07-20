@@ -19,7 +19,7 @@ public class Ponto implements Comparable<Ponto>{
 	}
 	
 	public int gerarNumeroAleatorio(int limite) {
-		return random.nextInt(limite);
+		return random.nextInt(1, limite);
 	}
 
 	public double getX() {

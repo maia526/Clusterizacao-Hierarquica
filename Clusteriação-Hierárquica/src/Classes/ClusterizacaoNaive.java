@@ -10,8 +10,11 @@ public class ClusterizacaoNaive {
 
     private final int iteracoesTotais;
 
-    public ClusterizacaoNaive(int qtdEntradas, int iteracoesTotais) throws IOException {
+    public ClusterizacaoNaive(int iteracoesTotais) {
         this.iteracoesTotais = iteracoesTotais;
+    }
+
+    public void clusterizacao(int qtdEntradas) throws IOException {
         List<Long> tempos = new ArrayList<>();
         int iteracoes = 0;
 
@@ -59,7 +62,7 @@ public class ClusterizacaoNaive {
             while (listaCluster.size() > 1) {
                 Distancia menor = calcularDistancias(listaCluster);
                 Cluster novoCluster = new Cluster(menor);
-                // raiz = novoCluster; // Teste
+                raiz = novoCluster; // Teste
                 listaCluster.remove(menor.getC1()); listaCluster.remove(menor.getC2());
                 listaCluster.add(novoCluster);
             }
@@ -72,13 +75,13 @@ public class ClusterizacaoNaive {
             iteracoes++;
         }
 
-        bufferedWriter.write("\nMédia: " + fazMedia(tempos) + "\n\n");
+        bufferedWriter.write("\nMedia: " + fazMedia(tempos) + "\n\n");
 
-        // raiz.getRaiz().mostra(); // Teste
+        raiz.getRaiz().mostra(); // Teste
         bufferedWriter.close();
     }
 
-    public long fazMedia(List<Long> tempos){
+    private long fazMedia(List<Long> tempos){
         long soma = 0;
         for (long tempo : tempos){
             soma+= tempo;
@@ -87,7 +90,7 @@ public class ClusterizacaoNaive {
 
     }
 
-    public Distancia calcularDistancias(List<Cluster> listaCluster) {
+    private Distancia calcularDistancias(List<Cluster> listaCluster) {
         Distancia menor = null;
 
         for (int i = 0; i < listaCluster.size()-1; i++) {

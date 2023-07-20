@@ -10,19 +10,21 @@ public class ClusterizacaoHeap {
 
     private final int iteracoesTotais;
     private HeapBinariaMinima distancias;
-    private final int tamHeap;
+    private int tamHeap;
     Cluster raiz;
 
-    public ClusterizacaoHeap(int qtdEntradas, int iteracoesTotais) throws IOException {
+    public ClusterizacaoHeap(int iteracoesTotais) {
         this.iteracoesTotais = iteracoesTotais;
-        this.tamHeap = (qtdEntradas*(qtdEntradas-1))/2;
+    }
 
+    public void clusterizacao(int qtdEntradas) throws IOException {
+        this.tamHeap = (qtdEntradas*(qtdEntradas-1))/2;
         int iteracoes = 0;
         List<Long> tempos = new ArrayList<>();
         FileWriter fileWriter = new FileWriter("registro.txt", true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 
-        bufferedWriter.write("\n*** Algoritmo com Heap Mínima: ***\n\n");
+        bufferedWriter.write("\n*** Algoritmo com Heap Minima: ***\n\n");
 
         while(iteracoes < iteracoesTotais){
             List<Cluster> listaCluster = new ArrayList<>();
@@ -61,18 +63,17 @@ public class ClusterizacaoHeap {
 
             while (listaCluster.size() > 1) { //O(n²logn)
 
-                Distancia menor = distancias.get(1); //a menor distância está no índice 1: Complexidade O(1)
+                Distancia menor = distancias.get(1);
                 Cluster novoCluster = new Cluster(menor);
-                // raiz = novoCluster; //Teste
+                raiz = novoCluster; //Teste
 
                 listaCluster.remove(menor.getC1()); // O(n)
                 listaCluster.remove(menor.getC2()); // O(n)
 
-                distancias = removerDistanciasDaLista(menor); // O(n)??
-                calcularDistanciasCluster(listaCluster, novoCluster);
+                distancias = distanciasNaoPertencem(menor); // O(n)
+                calcularDistanciasCluster(listaCluster, novoCluster); //(nlogn)
 
-
-                // distancias = novasDistancias(menor, listaCluster, novoCluster); //O(nlogn)
+                // distancias = novasDistancias(menor, listaCluster, novoCluster); Outra possibilidade -> O(nlogn)
                 listaCluster.add(novoCluster); // O(1)
             }
 
@@ -85,13 +86,13 @@ public class ClusterizacaoHeap {
         }
 
 
-        bufferedWriter.write("\nMédia: " + fazMedia(tempos) + "\n\n");
+        bufferedWriter.write("\nMedia: " + fazMedia(tempos) + "\n\n");
 
-        // raiz.getRaiz().mostra(); //Teste
+        raiz.getRaiz().mostra(); //Teste
         bufferedWriter.close();
     }
 
-    public long fazMedia(List<Long> tempos){
+    private long fazMedia(List<Long> tempos){
         long soma = 0;
         for (long tempo : tempos){
             soma+= tempo;
@@ -100,14 +101,13 @@ public class ClusterizacaoHeap {
 
     }
 
-    public HeapBinariaMinima novasDistancias(Distancia distancia, List<Cluster> listaCluster, Cluster novo){
+    private HeapBinariaMinima novasDistancias(Distancia distancia, List<Cluster> listaCluster, Cluster novo){
         Distancia[] novasDistancias = new Distancia[distancias.getN()];
         Distancia[] vetor = distancias.getVetor();
         int contador = 0;
 
         for (int i = 1; i < distancias.getN(); i++) {
-            if (vetor[i].getC1() != distancia.getC1() && vetor[i].getC1() != distancia.getC2() &&
-                vetor[i].getC2() != distancia.getC1() && vetor[i].getC2() != distancia.getC2()) {
+            if (!vetor[i].possuiCluster(distancia)) {
                 novasDistancias[contador++] = vetor[i]; //O(logn)
             }
         }
@@ -120,7 +120,7 @@ public class ClusterizacaoHeap {
 
     }
 
-    public HeapBinariaMinima calcularDistancias(List<Cluster> listaCluster) {
+    private HeapBinariaMinima calcularDistancias(List<Cluster> listaCluster) {
         Distancia[] vetor = new Distancia[tamHeap];
         int contador = 0;
 
@@ -133,23 +133,21 @@ public class ClusterizacaoHeap {
         return new HeapBinariaMinima(tamHeap, contador, vetor); // O(n)
     }
 
-    public HeapBinariaMinima removerDistanciasDaLista(Distancia distancia){
+    private HeapBinariaMinima distanciasNaoPertencem(Distancia distancia){
         Distancia[] permanecer = new Distancia[distancias.getN()];
         Distancia[] vetor = distancias.getVetor();
         int contador = 0;
 
         for (int i = 1; i < distancias.getN(); i++) {
-            if (vetor[i].getC1() != distancia.getC1() && vetor[i].getC1() != distancia.getC2() &&
-                    vetor[i].getC2() != distancia.getC1() && vetor[i].getC2() != distancia.getC2()) {
-                permanecer[contador++] = vetor[i]; //O(logn)
+            if (!vetor[i].possuiCluster(distancia)) {
+                permanecer[contador++] = vetor[i];
             }
         }
 
         return new HeapBinariaMinima(tamHeap, contador, permanecer);
-
     }
 
-    public void calcularDistanciasCluster(List<Cluster> listaCluster, Cluster novo) {
+    private void calcularDistanciasCluster(List<Cluster> listaCluster, Cluster novo) {
         for (Cluster c : listaCluster) {
             distancias.insere(new Distancia(c, novo));
         }

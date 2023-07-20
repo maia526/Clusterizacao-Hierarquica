@@ -43,6 +43,11 @@ public class Distancia implements Comparable<Distancia>{
 	public void setC2(Cluster c2) {
 		this.c2 = c2;
 	}
+
+	public boolean possuiCluster(Distancia d) {
+		return d.c1 == this.c1 || d.c1 == this.c2 ||
+				d.c2 == this.c1 || d.c2 == this.c2;
+	}
 	
 	public int compareTo(Distancia o) {
 		if (this.distancia == o.distancia)

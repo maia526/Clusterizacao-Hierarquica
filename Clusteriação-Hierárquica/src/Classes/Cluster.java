@@ -12,7 +12,7 @@ public class Cluster implements Comparable<Cluster>{
 		this.acumulado = new Ponto(coord.getX(), coord.getY());
 		this.qtdPontos = 1;
 
-		// this.raiz = new Arvbin<>(this);
+		this.raiz = new Arvbin<>(this);
 	}
 
 	public Cluster(Distancia menor){
@@ -25,7 +25,7 @@ public class Cluster implements Comparable<Cluster>{
 		this.qtdPontos = c1.qtdPontos + c2.qtdPontos;
 		this.coord = new Ponto(acumulado.getX() / qtdPontos, acumulado.getY() / qtdPontos);
 
-		// this.raiz = new Arvbin<>(this, c1.getRaiz(), c2.getRaiz());
+		this.raiz = new Arvbin<>(this, c1.getRaiz(), c2.getRaiz());
 	}
 
 	public Arvbin<Cluster> getRaiz() {
